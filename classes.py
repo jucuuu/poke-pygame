@@ -53,9 +53,37 @@ class NPC(pygame.sprite.Sprite):
         pass
 
 class Static(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, animation_list, x, y):
         super().__init__()
+        
+        self.animation_frames = animation_list
+        self.animation_index = 0
+        
+        self.image = self.animation_frames[self.animation_index]
+        self.rect = self.image.get_rect(center = (x, y))
+    
+    def animation_state(self):
+        self.animation_index += 0.1
+        if self.animation_index >= len(self.animation_frames): self.animation_index = 0
+        self.image = self.animation_frames[int(self.animation_index)]
+        
+    def update(self):
+        self.animation_state()
 
 class Animal(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, animation_list, x, y):
         super().__init__()
+        
+        self.animation_frames = animation_list
+        self.animation_index = 0
+        
+        self.image = self.animation_frames[self.animation_index]
+        self.rect = self.image.get_rect(center = (x, y))
+    
+    def animation_state(self):
+        self.animation_index += 0.1
+        if self.animation_index >= len(self.animation_frames): self.animation_index = 0
+        self.image = self.animation_frames[int(self.animation_index)]
+        
+    def update(self):
+        self.animation_state()
