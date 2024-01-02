@@ -2,7 +2,7 @@ import pygame
 from sys import exit
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, x, y):
         super().__init__()
         player_walk_s = pygame.image.load('graphics/player/player_stand.png').convert_alpha()
         player_walk_w = pygame.image.load('graphics/player/player_up.png').convert_alpha()
@@ -12,7 +12,10 @@ class Player(pygame.sprite.Sprite):
         self.animation_index = 0
         
         self.image = self.player_walk[self.animation_index]
-        self.rect = self.image.get_rect(center = (400, 200))
+        self.rect = self.image.get_rect(center = (x, y))
+        self.icon = self.player_walk[0]
+        
+        self.animals = []
     
     def animation_state(self):
         self.image = self.player_walk[int(self.animation_index)]
@@ -41,6 +44,13 @@ class Player(pygame.sprite.Sprite):
 
     def y_pos(self):
         return self.rect.y
+    
+    def set_x_y(self, x, y):
+        self.rect.x = x
+        self.rect.y = y
+    
+    def add_animals(self, animal):
+        self.animals.append(animal)
     
     def update(self):
         self.player_input()
@@ -79,11 +89,16 @@ class Animal(pygame.sprite.Sprite):
         
         self.image = self.animation_frames[self.animation_index]
         self.rect = self.image.get_rect(center = (x, y))
+        
+        self.icon = self.animation_frames[0]
     
     def animation_state(self):
         self.animation_index += 0.1
         if self.animation_index >= len(self.animation_frames): self.animation_index = 0
         self.image = self.animation_frames[int(self.animation_index)]
+    
+    def get_icon(self):
+        return self.icon
         
     def update(self):
         self.animation_state()
