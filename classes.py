@@ -99,6 +99,22 @@ class Animal(pygame.sprite.Sprite):
     
     def get_icon(self):
         return self.icon
+
+    def x_pos(self):
+        return self.rect.x
+
+    def y_pos(self):
+        return self.rect.y
+    
+    def set_x_y(self, x, y):
+        self.rect.x = x
+        self.rect.y = y
+    
+    def flipped(self):
+        for anim in self.animation_frames:
+            anim = pygame.transform.flip(anim, True, False)
+        self.image = self.animation_frames[int(self.animation_index)]
         
     def update(self):
         self.animation_state()
+        self.flipped()

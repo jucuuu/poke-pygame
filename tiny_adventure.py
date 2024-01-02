@@ -1,4 +1,5 @@
 import pygame
+import math
 from sys import exit
 from classes import *
 from mechanics import *
@@ -57,7 +58,9 @@ while True:
         bush.draw(screen)
         bush.update()
         
-        speech('Terrible misfortunes are upon us...', dog.sprite, dialogue_font, screen)
+        dist = math.sqrt((player.sprite.x_pos() - dog.sprite.x_pos())**2 + (player.sprite.y_pos() - dog.sprite.y_pos())**2)
+        if dist < 100:
+            speech('Terrible misfortunes are upon us...', dog.sprite, dialogue_font, screen)
         
         if player.sprite.x_pos() >= 850:
             bg_index = 1
