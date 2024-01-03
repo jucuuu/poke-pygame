@@ -30,6 +30,9 @@ bush_frames = [bush_1, bush_2]
 # Animals
 dog = pygame.image.load('graphics/animals/doggo_1.png').convert_alpha()
 dog_frames = [dog]
+dog_moved = False
+dog_moving = False
+frames_to_complete_movement = 3 * 60  # 3 seconds at 60 FPS
 
 # Groups
 player = pygame.sprite.GroupSingle()
@@ -39,7 +42,7 @@ bush = pygame.sprite.GroupSingle()
 bush.add(Static(bush_frames, 250, 175))
 
 dog = pygame.sprite.GroupSingle()
-dog.add(Animal(dog_frames, 250, 170))
+dog.add(Animal(dog_frames, 250, 180))
 
 while True:
     for event in pygame.event.get():
@@ -61,6 +64,18 @@ while True:
         dist = math.sqrt((player.sprite.x_pos() - dog.sprite.x_pos())**2 + (player.sprite.y_pos() - dog.sprite.y_pos())**2)
         if dist < 100:
             speech('Terrible misfortunes are upon us...', dog.sprite, dialogue_font, screen)
+
+        if not dog_moved:
+            dist = math.sqrt((player.sprite.x_pos() - dog.sprite.x_pos())**2 + (player.sprite.y_pos() - dog.sprite.y_pos())**2)
+            if dist < 50:
+                dog_moving = True
+                movement_distance = 300 / frames_to_complete_movement
+                dog.sprite.rect.x -= movement_distance
+                frames_to_complete_movement -= 1
+                if dog.sprite.x_pos() <= 170:
+                    dog_moved = True
+                    dog.sprite.flipped()
+                    bush.sprite.no_animation()
         
         if player.sprite.x_pos() >= 850:
             bg_index = 1
