@@ -1,2 +1,2 @@
-__pycache__/classes.cpython-311.pyc
-__pycache__/mechanics.cpython-311.pyc
+*.pyc
+__pycache__
