@@ -1,6 +1,13 @@
 import pygame
+import math
 from sys import exit
 from classes import *
+
+def sprite_dist(sprite_1, sprite_2):
+    """
+    Calculates the distance between the centers of two given sprites.
+    """
+    return math.sqrt((sprite_1.x_pos() - sprite_2.x_pos())**2 + (sprite_1.y_pos() - sprite_2.y_pos())**2)
 
 def speech(text, sprite, font, screen):
     icon = sprite.get_icon()
