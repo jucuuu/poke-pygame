@@ -27,6 +27,9 @@ bush_2 = pygame.image.load('graphics/bush/bush_2.png').convert_alpha()
 bush_2 = pygame.transform.rotozoom(bush_2, 0, 1.5)
 bush_frames = [bush_1, bush_2]
 
+tree_1 = pygame.image.load('graphics/tree.png').convert_alpha()
+tree_frames = [tree_1]
+
 # Animals
 dog = pygame.image.load('graphics/animals/doggo_1.png').convert_alpha()
 dog_frames = [dog]
@@ -40,6 +43,21 @@ player.add(Player(400, 200))
 
 bush = pygame.sprite.GroupSingle()
 bush.add(Static(bush_frames, 250, 175))
+
+tree_group_upper = pygame.sprite.Group()
+for i in range(17):
+    tree_instance = Static(tree_frames, 0 + i * 50, 50)
+    tree_group_upper.add(tree_instance)
+
+tree_group_lower = pygame.sprite.Group()
+for i in range(17):
+    tree_instance = Static(tree_frames, 0 + i * 50, 370)
+    tree_group_lower.add(tree_instance)
+
+tree_group_left = pygame.sprite.Group()
+for i in range(5):
+    tree_instance = Static(tree_frames, 0, 50 + i * 70)
+    tree_group_left.add(tree_instance)
 
 dog = pygame.sprite.GroupSingle()
 dog.add(Animal(dog_frames, 250, 180))
@@ -55,6 +73,15 @@ while True:
         player.draw(screen)
         player.update()
         
+        tree_group_upper.draw(screen)
+        tree_group_upper.update()
+
+        tree_group_left.draw(screen)
+        tree_group_left.update()
+
+        tree_group_lower.draw(screen)
+        tree_group_lower.update()
+
         dog.draw(screen)
         dog.update()
         
