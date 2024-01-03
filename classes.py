@@ -96,6 +96,7 @@ class Static(pygame.sprite.Sprite):
         if self.animation_index >= len(self.animation_frames): self.animation_index = 0
         self.image = self.animation_frames[int(self.animation_index)]
 
+    #Ups shitas bus japartaisa jo shito tikai kurmam vajag
     def no_animation(self):
         self.image = self.animation_frames.pop()
         

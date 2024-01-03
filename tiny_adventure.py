@@ -14,8 +14,8 @@ dialogue_font = pygame.font.Font('font/kongtext.ttf', 20)
 
 # Backgrounds
 bg_forest = pygame.image.load('graphics/background1.png').convert_alpha()
-bg_shop_outside = pygame.image.load('graphics/background1.png').convert_alpha()
-bg_shop_inside = pygame.image.load('graphics/background1.png').convert_alpha()
+bg_shop_outside = pygame.image.load('graphics/background2.png').convert_alpha()
+bg_shop_inside = pygame.image.load('graphics/background3.png').convert_alpha()
 bgs = [bg_forest, bg_shop_outside, bg_shop_outside]
 bg_index = 0
 current_bg = bgs[bg_index]
@@ -30,12 +30,22 @@ bush_frames = [bush_1, bush_2]
 tree_1 = pygame.image.load('graphics/tree.png').convert_alpha()
 tree_frames = [tree_1]
 
+trash_front = pygame.image.load('graphics/trashcan/trash_front.png').convert_alpha()
+trash_back = pygame.image.load('graphics/trashcan/trash_back.png').convert_alpha()
+trash_front_frames = [trash_front]
+trash_back_frames = [trash_back]
+
 # Animals
 dog = pygame.image.load('graphics/animals/doggo_1.png').convert_alpha()
 dog_frames = [dog]
 dog_moved = False
 dog_moving = False
 frames_to_complete_movement = 3 * 60  # 3 seconds at 60 FPS
+
+cat_1 = pygame.image.load('graphics/animals/cat_1.png').convert_alpha()
+cat_trashcan= pygame.image.load('graphics/trashcan/cat_trashcan.png').convert_alpha()
+cat_frames = [cat_1]
+cat_trashcan_frames = [cat_trashcan]
 
 # NPC
 shopkeep = pygame.image.load('graphics/npcs/shopkeeper_1.png').convert_alpha()
@@ -63,8 +73,17 @@ for i in range(5):
     tree_instance = Static(tree_frames, 0, 50 + i * 70)
     tree_group_left.add(tree_instance)
 
+trash_front = pygame.sprite.GroupSingle()
+trash_front.add(Static(trash_front_frames, 680, 180))
+
+trash_back = pygame.sprite.GroupSingle()
+trash_back.add(Static(trash_back_frames, 680, 180))
+
 dog = pygame.sprite.GroupSingle()
 dog.add(Animal(dog_frames, 250, 180))
+
+cat_trashcan = pygame.sprite.GroupSingle()
+cat_trashcan.add(Animal(cat_trashcan_frames, 680, 180))
 
 shop_entrance = pygame.Rect(600,200,100,100)
 
@@ -141,6 +160,14 @@ while True:
         player.draw(screen)
         player.update()
         
+        trash_back.draw(screen)
+        trash_back.update()
+        
+        cat_trashcan.draw(screen)
+        cat_trashcan.update()
+
+        trash_front.draw(screen)
+        trash_front.update()
         #screen.blit(shop_entr, (600,200))
         pygame.draw.rect(screen, 'red', shop_entrance)
         
