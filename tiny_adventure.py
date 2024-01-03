@@ -31,6 +31,10 @@ bush_frames = [bush_1, bush_2]
 dog = pygame.image.load('graphics/animals/doggo_1.png').convert_alpha()
 dog_frames = [dog]
 
+# NPC
+shopkeep = pygame.image.load('graphics/npcs/shopkeeper_1.png').convert_alpha()
+shopkeep_frames = [shopkeep]
+
 # Groups
 player = pygame.sprite.GroupSingle()
 player.add(Player(400, 200))
@@ -41,11 +45,21 @@ bush.add(Static(bush_frames, 250, 175))
 dog = pygame.sprite.GroupSingle()
 dog.add(Animal(dog_frames, 250, 170))
 
+shop_entrance = pygame.Rect(600,200,100,100)
+
+shopkeeper = pygame.sprite.GroupSingle()
+shopkeeper.add(NPC(shopkeep_frames, 400, 50))
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_e and bg_index == 1:
+                # Switch to shop area if press E next to shop
+                if shop_entrance.colliderect(player.sprite.rect):
+                    bg_index = 2
     
     screen.blit(bgs[bg_index],(0,0))
     if bg_index == 0:
@@ -58,7 +72,7 @@ while True:
         bush.draw(screen)
         bush.update()
         
-        dist = math.sqrt((player.sprite.x_pos() - dog.sprite.x_pos())**2 + (player.sprite.y_pos() - dog.sprite.y_pos())**2)
+        dist = sprite_dist(player.sprite, dog.sprite)
         if dist < 100:
             speech('Terrible misfortunes are upon us...', dog.sprite, dialogue_font, screen)
         
@@ -69,10 +83,27 @@ while True:
         player.draw(screen)
         player.update()
         
+        #screen.blit(shop_entr, (600,200))
+        pygame.draw.rect(screen, 'red', shop_entrance)
+        
         if player.sprite.x_pos() <= -50:
             bg_index = 0
             player.sprite.set_x_y(750, 200)
-    #if bg_index == 2:
+        
+        if shop_entrance.colliderect(player.sprite.rect):
+            speech('A shop with a trash cat outside! This must be a bad omen...', dog.sprite, dialogue_font, screen)
+    if bg_index == 2:
+        screen.fill((0,0,255))
+        player.draw(screen)
+        player.update()
+        
+        shopkeeper.draw(screen)
+        shopkeeper.update()
+        
+        speech('velkam bruh', shopkeeper.sprite, dialogue_font, screen)
+        
+        if player.sprite.rect.x <= -50 or player.sprite.rect.x >= 450:
+            player.sprite.set_x_y(100, 200)
     
     pygame.display.update()
     clock.tick(60) # Max framerate
