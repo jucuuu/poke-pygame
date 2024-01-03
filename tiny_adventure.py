@@ -51,7 +51,7 @@ for i in range(17):
 
 tree_group_lower = pygame.sprite.Group()
 for i in range(17):
-    tree_instance = Static(tree_frames, 0 + i * 50, 370)
+    tree_instance = Static(tree_frames, 0 + i * 50, 346)
     tree_group_lower.add(tree_instance)
 
 tree_group_left = pygame.sprite.Group()
@@ -104,9 +104,25 @@ while True:
                     dog.sprite.flipped()
                     bush.sprite.no_animation()
         
+        for tree in tree_group_left:
+            if player.sprite.rect.colliderect(tree.rect):
+                player_x_limit = tree.rect.right -20
+                if player.sprite.x_pos() < player_x_limit:
+                    player.sprite.set_x_y(player_x_limit, player.sprite.y_pos())
+
+        for tree in tree_group_upper:
+            if player.sprite.rect.colliderect(tree.rect):
+                player_y_limit = tree.rect.bottom
+                if player.sprite.y_pos() < tree.rect.bottom:
+                    player.sprite.set_x_y(player.sprite.x_pos(), player_y_limit)
+
+        if player.sprite.y_pos() > 350:
+            player.sprite.set_x_y(player.sprite.x_pos(), 350)
+        
         if player.sprite.x_pos() >= 850:
             bg_index = 1
             player.sprite.set_x_y(100, 200)
+
     if bg_index == 1:
         player.draw(screen)
         player.update()
