@@ -56,8 +56,27 @@ class Player(pygame.sprite.Sprite):
         self.player_input()
 
 class NPC(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, animation_list, x, y):
         super().__init__()
+
+        self.animation_frames = animation_list
+        self.animation_index = 0
+        
+        self.image = self.animation_frames[self.animation_index]
+        self.rect = self.image.get_rect(center = (x, y))
+        
+        self.icon = self.animation_frames[0]
+    
+    def animation_state(self):
+        self.animation_index += 0.1
+        if self.animation_index >= len(self.animation_frames): self.animation_index = 0
+        self.image = self.animation_frames[int(self.animation_index)]
+    
+    def get_icon(self):
+        return self.icon
+    
+    def update(self):
+        self.animation_state()
     
     def dialogue(self):
         pass
