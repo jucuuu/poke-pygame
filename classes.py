@@ -95,6 +95,9 @@ class Static(pygame.sprite.Sprite):
         self.animation_index += 0.1
         if self.animation_index >= len(self.animation_frames): self.animation_index = 0
         self.image = self.animation_frames[int(self.animation_index)]
+
+    def no_animation(self):
+        self.image = self.animation_frames.pop()
         
     def update(self):
         self.animation_state()
@@ -133,7 +136,7 @@ class Animal(pygame.sprite.Sprite):
         for anim in self.animation_frames:
             anim = pygame.transform.flip(anim, True, False)
         self.image = self.animation_frames[int(self.animation_index)]
-        
+
     def update(self):
         self.animation_state()
         self.flipped()
