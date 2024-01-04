@@ -35,6 +35,9 @@ trash_back = pygame.image.load('graphics/trashcan/trash_back.png').convert_alpha
 trash_front_frames = [trash_front]
 trash_back_frames = [trash_back]
 
+table = pygame.image.load('graphics/table.png').convert_alpha()
+table_frames = [table]
+
 # Animals
 dog = pygame.image.load('graphics/animals/doggo_1.png').convert_alpha()
 dog_frames = [dog]
@@ -47,6 +50,8 @@ cat_trashcan= pygame.image.load('graphics/trashcan/cat_trashcan.png').convert_al
 cat_frames = [cat_1]
 cat_trashcan_frames = [cat_trashcan]
 
+birb_1 = pygame.image.load('graphics/animals/birb_1.png').convert_alpha()
+birb_frames = [birb_1]
 # NPC
 shopkeep = pygame.image.load('graphics/npcs/shopkeeper_1.png').convert_alpha()
 shopkeep_frames = [shopkeep]
@@ -73,17 +78,28 @@ for i in range(5):
     tree_instance = Static(tree_frames, 0, 50 + i * 70)
     tree_group_left.add(tree_instance)
 
+tree_group_right = pygame.sprite.Group()
+for i in range(5):
+    tree_instance = Static(tree_frames, 800, 50 + i * 70)
+    tree_group_right.add(tree_instance)
+
 trash_front = pygame.sprite.GroupSingle()
 trash_front.add(Static(trash_front_frames, 680, 180))
 
 trash_back = pygame.sprite.GroupSingle()
 trash_back.add(Static(trash_back_frames, 680, 180))
 
+table = pygame.sprite.GroupSingle()
+table.add(Static(table_frames, 400, 100))
+
 dog = pygame.sprite.GroupSingle()
 dog.add(Animal(dog_frames, 250, 180))
 
 cat_trashcan = pygame.sprite.GroupSingle()
 cat_trashcan.add(Animal(cat_trashcan_frames, 680, 180))
+
+birb = pygame.sprite.GroupSingle()
+birb.add(Animal(birb_frames,460,180))
 
 shop_entrance = pygame.Rect(600,200,100,100)
 
@@ -100,6 +116,12 @@ while True:
                 # Switch to shop area if press E next to shop
                 if shop_entrance.colliderect(player.sprite.rect):
                     bg_index = 2
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_e and bg_index == 2:
+                # Switch to shop outside area if press E next to shop left wall
+                if player.sprite.rect.x <= 10:
+                    bg_index = 1
+                    player.sprite.set_x_y(550,220)
     
     screen.blit(bgs[bg_index],(0,0))
     if bg_index == 0:
@@ -157,8 +179,17 @@ while True:
             player.sprite.set_x_y(100, 200)
 
     if bg_index == 1:
+        tree_group_right.draw(screen)
+        tree_group_right.update()
+
+        tree_group_upper.draw(screen)
+        tree_group_upper.update()
+
         player.draw(screen)
         player.update()
+
+        tree_group_lower.draw(screen)
+        tree_group_lower.update()
         
         trash_back.draw(screen)
         trash_back.update()
@@ -171,6 +202,21 @@ while True:
         #screen.blit(shop_entr, (600,200))
         pygame.draw.rect(screen, 'red', shop_entrance)
         
+        for tree in tree_group_upper:
+            if player.sprite.rect.colliderect(tree.rect):
+                player_y_limit = tree.rect.bottom
+                if player.sprite.y_pos() < tree.rect.bottom:
+                    player.sprite.set_x_y(player.sprite.x_pos(), player_y_limit)
+
+        for tree in tree_group_right:
+            if player.sprite.rect.colliderect(tree.rect):
+                player_x_limit = tree.rect.left -45
+                if player.sprite.x_pos() > player_x_limit:
+                    player.sprite.set_x_y(player_x_limit, player.sprite.y_pos())
+
+        if player.sprite.y_pos() > 350:
+            player.sprite.set_x_y(player.sprite.x_pos(), 350)
+
         if player.sprite.x_pos() <= -50:
             bg_index = 0
             player.sprite.set_x_y(750, 200)
@@ -181,14 +227,21 @@ while True:
         screen.fill((0,0,255))
         player.draw(screen)
         player.update()
-        
+
         shopkeeper.draw(screen)
         shopkeeper.update()
+
+        birb.draw(screen)
+        birb.update()
+
+        table.draw(screen)
+        table.update()
         
         speech('velkam bruh', shopkeeper.sprite, dialogue_font, screen)
         
         if player.sprite.rect.x <= -50 or player.sprite.rect.x >= 450:
             player.sprite.set_x_y(100, 200)
+        
     
     pygame.display.update()
     clock.tick(60) # Max framerate
