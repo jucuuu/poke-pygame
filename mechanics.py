@@ -46,3 +46,24 @@ def speech(text, sprite, font, screen):
         screen.blit(font_surf, (tx, ty))
         
         y_offset += fh
+
+def confirmation(option1, option2, font, screen):
+    text_rect = pygame.Surface((700, 120))
+    text_rect.set_alpha(240)
+    text_rect.fill((0,0,0))
+    screen.blit(text_rect, (50, 250))
+    pygame.draw.rect(screen, (239, 232, 76), ((60, 260), (80, 100)))
+    lines = [option1, option2]
+    y_offset = 0
+    for line in lines:
+        fw, fh = font.size(line)
+        
+        tx = 150
+        ty = 270 + y_offset
+        
+        font_surf = font.render(line, False, (255,255,255))
+        screen.blit(font_surf, (tx, ty))
+        
+        y_offset += fh
+
+    keys = pygame.key.get_pressed()

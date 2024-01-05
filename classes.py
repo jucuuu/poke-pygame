@@ -38,7 +38,18 @@ class Player(pygame.sprite.Sprite):
             self.rect.x += 5
             self.animation_index = 3
             self.animation_state()
-    
+
+    def player_interaction(self):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_e]:
+            return 'interact'
+        if keys[pygame.K_SPACE]:
+            return 'next'
+        if keys[pygame.K_y]:
+            return 'yes'
+        if keys[pygame.K_n]:
+            return 'no'
+
     def x_pos(self):
         return self.rect.x
 

@@ -106,7 +106,15 @@ shop_entrance = pygame.Rect(600,200,100,100)
 shopkeeper = pygame.sprite.GroupSingle()
 shopkeeper.add(NPC(shopkeep_frames, 400, 50))
 
+#Player related
+interaction_active = False
+pending_choice = False
+answer_1 = False
+answer_2 = False
+
 while True:
+    screen.blit(bgs[bg_index],(0,0))
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -116,14 +124,6 @@ while True:
                 # Switch to shop area if press E next to shop
                 if shop_entrance.colliderect(player.sprite.rect):
                     bg_index = 2
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_e and bg_index == 2:
-                # Switch to shop outside area if press E next to shop left wall
-                if player.sprite.rect.x <= 10:
-                    bg_index = 1
-                    player.sprite.set_x_y(550,220)
-    
-    screen.blit(bgs[bg_index],(0,0))
     if bg_index == 0:
         player.draw(screen)
         player.update()
@@ -144,11 +144,31 @@ while True:
         bush.update()
         
         dist = sprite_dist(player.sprite, dog.sprite)
-        if dist < 100:
+
+        if dist < 100 and not dog_moved:
             speech('Terrible misfortunes are upon us...', dog.sprite, dialogue_font, screen)
 
+        if player.sprite.player_interaction() == 'interact':
+            interaction_active = True
+        
+        if player.sprite.player_interaction() == 'next':
+            pending_choice = True
+        
+        if player.sprite.player_interaction() == 'yes':
+            answer_1 = True
+        
+        if player.sprite.player_interaction() == 'no':
+            answer_2 = True
+
+        if interaction_active and dog_moved and dist < 50:
+            speech('Kind stranger! Please come with me and help fight the evil (PRESS SPACE TO CONTINUE)', dog.sprite, dialogue_font, screen)
+            if pending_choice and dog_moved and dist < 50:
+                confirmation('>Sure!!!(PRESS Y)', '>Ehh I will pass..(PRESS N)', dialogue_font, screen)
+                if answer_1:
+                    speech('Yayy!', dog.sprite, dialogue_font, screen)
+                if answer_2:
+                    speech('You think you have the rights to decline?', dog.sprite, dialogue_font, screen)
         if not dog_moved:
-            dist = math.sqrt((player.sprite.x_pos() - dog.sprite.x_pos())**2 + (player.sprite.y_pos() - dog.sprite.y_pos())**2)
             if dist < 50:
                 dog_moving = True
                 movement_distance = 300 / frames_to_complete_movement
