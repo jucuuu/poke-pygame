@@ -66,4 +66,35 @@ def confirmation(option1, option2, font, screen):
         
         y_offset += fh
 
-    keys = pygame.key.get_pressed()
+def hint(text, sprite, font, screen):
+    words = text.split()
+    
+    lines = []
+    while len(words) > 0:
+        line_words = []
+        while len(words) > 0:
+            line_words.append(words.pop(0))
+            fw, fh = font.size(' '.join(line_words + words[:1]))
+            if fw > (3*sprite.rect.width):
+                break
+        
+        line = ' '.join(line_words)
+        lines.append(line)
+    
+    y_offset = 0
+    for line in lines:
+        fw, fh = font.size(line)
+        
+        tx = sprite.rect.left -30
+        ty = sprite.rect.top -30 + y_offset
+        
+        font_surf = font.render(line, False, (255,255,255))
+        screen.blit(font_surf, (tx, ty))
+        
+        y_offset += fh
+
+def sprite_movement(sprite, target_x, frames_to_complete_movement, dist, speed):
+    if dist <100:
+        movement_distance = (target_x - sprite.rect.x) / frames_to_complete_movement
+        sprite.rect.x += speed * movement_distance
+        frames_to_complete_movement -= 1

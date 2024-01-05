@@ -131,6 +131,9 @@ class Animal(pygame.sprite.Sprite):
         if self.animation_index >= len(self.animation_frames): self.animation_index = 0
         self.image = self.animation_frames[int(self.animation_index)]
     
+    def switch_image(self, frame):
+        self.image = self.animation_frames[frame]
+
     def get_icon(self):
         return self.icon
 

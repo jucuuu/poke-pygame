@@ -11,6 +11,7 @@ clock = pygame.time.Clock()
 
 # Fonts
 dialogue_font = pygame.font.Font('font/kongtext.ttf', 20)
+interaction_font = pygame.font.Font('font/kongtext.ttf', 10)
 
 # Backgrounds
 bg_forest = pygame.image.load('graphics/background1.png').convert_alpha()
@@ -47,8 +48,9 @@ frames_to_complete_movement = 3 * 60  # 3 seconds at 60 FPS
 
 cat_1 = pygame.image.load('graphics/animals/cat_1.png').convert_alpha()
 cat_trashcan= pygame.image.load('graphics/trashcan/cat_trashcan.png').convert_alpha()
-cat_frames = [cat_1]
-cat_trashcan_frames = [cat_trashcan]
+cat_frames = [cat_1, cat_trashcan]
+cat_moved = False
+cat_moving = False
 
 birb_1 = pygame.image.load('graphics/animals/birb_1.png').convert_alpha()
 birb_frames = [birb_1]
@@ -95,8 +97,8 @@ table.add(Static(table_frames, 400, 100))
 dog = pygame.sprite.GroupSingle()
 dog.add(Animal(dog_frames, 250, 180))
 
-cat_trashcan = pygame.sprite.GroupSingle()
-cat_trashcan.add(Animal(cat_trashcan_frames, 680, 180))
+cat = pygame.sprite.GroupSingle()
+cat.add(Animal(cat_frames, 680, 180))
 
 birb = pygame.sprite.GroupSingle()
 birb.add(Animal(birb_frames,460,180))
@@ -120,7 +122,7 @@ while True:
             pygame.quit()
             exit()
         if event.type == pygame.KEYUP:
-            if event.key == pygame.K_e and bg_index == 1:
+            if event.key == pygame.K_e and bg_index == 1 and player.sprite.y_pos() > 200:
                 # Switch to shop area if press E next to shop
                 if shop_entrance.colliderect(player.sprite.rect):
                     bg_index = 2
@@ -160,6 +162,9 @@ while True:
         if player.sprite.player_interaction() == 'no':
             answer_2 = True
 
+        if dog_moved and dist <50 and not interaction_active:
+            hint('Press E to interact', dog.sprite, interaction_font, screen)
+
         if interaction_active and dog_moved and dist < 50:
             speech('Kind stranger! Please come with me and help fight the evil (PRESS SPACE TO CONTINUE)', dog.sprite, dialogue_font, screen)
             if pending_choice and dog_moved and dist < 50:
@@ -168,6 +173,10 @@ while True:
                     speech('Yayy!', dog.sprite, dialogue_font, screen)
                 if answer_2:
                     speech('You think you have the rights to decline?', dog.sprite, dialogue_font, screen)
+        
+        if answer_1 or answer_2:
+            hint('PomPom has joined your adventure!', dog.sprite, interaction_font, screen)
+
         if not dog_moved:
             if dist < 50:
                 dog_moving = True
@@ -214,8 +223,15 @@ while True:
         trash_back.draw(screen)
         trash_back.update()
         
-        cat_trashcan.draw(screen)
-        cat_trashcan.update()
+        if not cat_moved:
+            cat.sprite.switch_image(1)
+            cat.draw(screen)
+            cat.update()
+        
+        else:
+            cat.sprite.switch_image(0)
+            cat.draw(screen)
+            cat.update()
 
         trash_front.draw(screen)
         trash_front.update()
@@ -241,8 +257,25 @@ while True:
             bg_index = 0
             player.sprite.set_x_y(750, 200)
         
-        if shop_entrance.colliderect(player.sprite.rect):
+        if shop_entrance.colliderect(player.sprite.rect) and player.sprite.y_pos() > 200:
             speech('A shop with a trash cat outside! This must be a bad omen...', dog.sprite, dialogue_font, screen)
+
+        dist = sprite_dist(player.sprite, cat.sprite)
+
+        if dist < 50:
+            hint('Press E to interact', cat.sprite, interaction_font, screen)
+        
+            if player.sprite.player_interaction() == 'interact':
+                interaction_active = True
+
+            if interaction_active and dist < 50:
+                speech('Dont you dare come any closer!', cat.sprite, dialogue_font, screen)
+                if dist < 20:
+                    cat_moved = True
+                    cat_moving = True
+                    sprite_movement(cat.sprite, 100, 180, dist, 3)
+                    
+
     if bg_index == 2:
         screen.fill((0,0,255))
         player.draw(screen)
