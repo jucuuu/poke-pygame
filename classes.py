@@ -17,6 +17,9 @@ class Player(pygame.sprite.Sprite):
         
         self.animals = []
     
+    def get_animals(self):
+        return self.animals
+    
     def animation_state(self):
         self.image = self.player_walk[int(self.animation_index)]
     
@@ -39,18 +42,13 @@ class Player(pygame.sprite.Sprite):
             self.animation_index = 3
             self.animation_state()
     
-    def x_pos(self):
-        return self.rect.x
-
-    def y_pos(self):
-        return self.rect.y
-    
     def set_x_y(self, x, y):
         self.rect.x = x
         self.rect.y = y
     
     def add_animals(self, animal):
         self.animals.append(animal)
+        print(self.animals)
     
     def update(self):
         self.player_input()
@@ -66,6 +64,11 @@ class NPC(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center = (x, y))
         
         self.icon = self.animation_frames[0]
+        
+        self.animals = []
+    
+    def get_animals(self):
+        return self.animals
     
     def animation_state(self):
         self.animation_index += 0.1
@@ -114,6 +117,8 @@ class Animal(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center = (x, y))
         
         self.icon = self.animation_frames[0]
+        
+        self.health = 100
     
     def animation_state(self):
         self.animation_index += 0.1
@@ -122,12 +127,6 @@ class Animal(pygame.sprite.Sprite):
     
     def get_icon(self):
         return self.icon
-
-    def x_pos(self):
-        return self.rect.x
-
-    def y_pos(self):
-        return self.rect.y
     
     def set_x_y(self, x, y):
         self.rect.x = x
@@ -137,7 +136,7 @@ class Animal(pygame.sprite.Sprite):
         for anim in self.animation_frames:
             anim = pygame.transform.flip(anim, True, False)
         self.image = self.animation_frames[int(self.animation_index)]
+        self.update()
 
     def update(self):
         self.animation_state()
-        self.flipped()

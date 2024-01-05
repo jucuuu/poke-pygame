@@ -42,7 +42,6 @@ table_frames = [table]
 dog = pygame.image.load('graphics/animals/doggo_1.png').convert_alpha()
 dog_frames = [dog]
 dog_moved = False
-dog_moving = False
 frames_to_complete_movement = 3 * 60  # 3 seconds at 60 FPS
 
 cat_1 = pygame.image.load('graphics/animals/cat_1.png').convert_alpha()
@@ -98,6 +97,9 @@ dog.add(Animal(dog_frames, 250, 180))
 cat_trashcan = pygame.sprite.GroupSingle()
 cat_trashcan.add(Animal(cat_trashcan_frames, 680, 180))
 
+cat = pygame.sprite.GroupSingle()
+cat.add(Animal(cat_frames, 680, 180))
+
 birb = pygame.sprite.GroupSingle()
 birb.add(Animal(birb_frames,460,180))
 
@@ -105,6 +107,8 @@ shop_entrance = pygame.Rect(600,200,100,100)
 
 shopkeeper = pygame.sprite.GroupSingle()
 shopkeeper.add(NPC(shopkeep_frames, 400, 50))
+
+fighting = False
 
 while True:
     for event in pygame.event.get():
@@ -116,15 +120,18 @@ while True:
                 # Switch to shop area if press E next to shop
                 if shop_entrance.colliderect(player.sprite.rect):
                     bg_index = 2
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_e and bg_index == 2:
+            elif event.key == pygame.K_e and bg_index == 2:
                 # Switch to shop outside area if press E next to shop left wall
                 if player.sprite.rect.x <= 10:
                     bg_index = 1
-                    player.sprite.set_x_y(550,220)
+                    player.sprite.set_x_y(400,220)
+                if sprite_dist(shopkeeper.sprite, player.sprite) <= 20:
+                    fighting = True
     
     screen.blit(bgs[bg_index],(0,0))
-    if bg_index == 0:
+    if fighting == True:
+        fight(screen, player.sprite, shopkeeper.sprite)
+    elif bg_index == 0:
         player.draw(screen)
         player.update()
         
@@ -148,37 +155,36 @@ while True:
             speech('Terrible misfortunes are upon us...', dog.sprite, dialogue_font, screen)
 
         if not dog_moved:
-            dist = math.sqrt((player.sprite.x_pos() - dog.sprite.x_pos())**2 + (player.sprite.y_pos() - dog.sprite.y_pos())**2)
             if dist < 50:
-                dog_moving = True
                 movement_distance = 300 / frames_to_complete_movement
                 dog.sprite.rect.x -= movement_distance
                 frames_to_complete_movement -= 1
-                if dog.sprite.x_pos() <= 170:
+                if dog.sprite.rect.left <= 170:
                     dog_moved = True
                     dog.sprite.flipped()
                     bush.sprite.no_animation()
+                if dog.sprite not in player.sprite.animals: player.sprite.add_animals(dog.sprite)
         
         for tree in tree_group_left:
             if player.sprite.rect.colliderect(tree.rect):
                 player_x_limit = tree.rect.right -20
-                if player.sprite.x_pos() < player_x_limit:
-                    player.sprite.set_x_y(player_x_limit, player.sprite.y_pos())
+                if player.sprite.rect.left < player_x_limit:
+                    player.sprite.set_x_y(player_x_limit, player.sprite.rect.top)
 
         for tree in tree_group_upper:
             if player.sprite.rect.colliderect(tree.rect):
                 player_y_limit = tree.rect.bottom
-                if player.sprite.y_pos() < tree.rect.bottom:
-                    player.sprite.set_x_y(player.sprite.x_pos(), player_y_limit)
+                if player.sprite.rect.top < tree.rect.bottom:
+                    player.sprite.set_x_y(player.sprite.rect.left, player_y_limit)
 
-        if player.sprite.y_pos() > 350:
-            player.sprite.set_x_y(player.sprite.x_pos(), 350)
+        if player.sprite.rect.top > 350:
+            player.sprite.set_x_y(player.sprite.rect.left, 350)
         
-        if player.sprite.x_pos() >= 850:
+        if player.sprite.rect.left >= 850:
             bg_index = 1
             player.sprite.set_x_y(100, 200)
 
-    if bg_index == 1:
+    elif bg_index == 1:
         tree_group_right.draw(screen)
         tree_group_right.update()
 
@@ -205,28 +211,26 @@ while True:
         for tree in tree_group_upper:
             if player.sprite.rect.colliderect(tree.rect):
                 player_y_limit = tree.rect.bottom
-                if player.sprite.y_pos() < tree.rect.bottom:
-                    player.sprite.set_x_y(player.sprite.x_pos(), player_y_limit)
+                if player.sprite.rect.top < tree.rect.bottom:
+                    player.sprite.set_x_y(player.sprite.rect.left, player_y_limit)
 
         for tree in tree_group_right:
             if player.sprite.rect.colliderect(tree.rect):
                 player_x_limit = tree.rect.left -45
-                if player.sprite.x_pos() > player_x_limit:
-                    player.sprite.set_x_y(player_x_limit, player.sprite.y_pos())
+                if player.sprite.rect.left > player_x_limit:
+                    player.sprite.set_x_y(player_x_limit, player.sprite.rect.top)
 
-        if player.sprite.y_pos() > 350:
-            player.sprite.set_x_y(player.sprite.x_pos(), 350)
+        if player.sprite.rect.top > 350:
+            player.sprite.set_x_y(player.sprite.rect.left, 350)
 
-        if player.sprite.x_pos() <= -50:
+        if player.sprite.rect.left <= -50:
             bg_index = 0
             player.sprite.set_x_y(750, 200)
         
         if shop_entrance.colliderect(player.sprite.rect):
             speech('A shop with a trash cat outside! This must be a bad omen...', dog.sprite, dialogue_font, screen)
-    if bg_index == 2:
+    elif bg_index == 2:
         screen.fill((0,0,255))
-        player.draw(screen)
-        player.update()
 
         shopkeeper.draw(screen)
         shopkeeper.update()
@@ -237,11 +241,18 @@ while True:
         table.draw(screen)
         table.update()
         
+        player.draw(screen)
+        player.update()
+        
         speech('velkam bruh', shopkeeper.sprite, dialogue_font, screen)
         
-        if player.sprite.rect.x <= -50 or player.sprite.rect.x >= 450:
+        if player.sprite.rect.y >= 450:
             player.sprite.set_x_y(100, 200)
+        #if player.sprite.x_pos() <= -50:
+        #    bg_index = 1
+        #    player.sprite.set_x_y(400, 200)
+        if sprite_dist(shopkeeper.sprite, player.sprite) <= 20 and fighting == False:
+            speech("Let's mess him up!", dog.sprite, dialogue_font, screen)
         
-    
     pygame.display.update()
     clock.tick(60) # Max framerate

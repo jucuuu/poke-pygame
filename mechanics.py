@@ -7,7 +7,8 @@ def sprite_dist(sprite_1, sprite_2):
     """
     Calculates the distance between the centers of two given sprites.
     """
-    return math.sqrt((sprite_1.x_pos() - sprite_2.x_pos())**2 + (sprite_1.y_pos() - sprite_2.y_pos())**2)
+    #return math.sqrt((sprite_1.x_pos() - sprite_2.x_pos())**2 + (sprite_1.y_pos() - sprite_2.y_pos())**2)
+    return math.sqrt((sprite_1.rect.left - sprite_2.rect.left)**2 + (sprite_1.rect.top - sprite_2.rect.top)**2)
 
 def speech(text, sprite, font, screen):
     icon = sprite.get_icon()
@@ -46,3 +47,27 @@ def speech(text, sprite, font, screen):
         screen.blit(font_surf, (tx, ty))
         
         y_offset += fh
+        
+def fight(screen, player, npc):
+    # Player starts
+    current_turn = True
+    chosen = False # True as soon as player makes any move (switch animal/attack)
+    if player.animals and chosen == False:
+        current_animal = player.animals[0]
+    
+    # Draw fight screen
+    screen.fill((153, 255, 153))
+    # Ellipses for the active animal to stand on (both player's and NPC's)
+    pygame.draw.ellipse(screen,(36, 157, 30),(430,100,270,50))
+    pygame.draw.ellipse(screen,(36, 157, 30),(100,200,270,50))
+    
+    # Show current animal scaled, the list of their abilities + their damage
+    icon = current_animal.get_icon()
+    icon = pygame.transform.rotozoom(icon, 0, 3)
+    icon = pygame.transform.flip(icon, True, False)
+    icon_rect = icon.get_rect(center = (240, 180))
+    screen.blit(icon, icon_rect)
+    
+    # Show small icons of other animals
+    
+    # Show small icons of NPC's animals
