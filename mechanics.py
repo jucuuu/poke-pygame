@@ -75,7 +75,7 @@ def hint(text, sprite, font, screen):
         while len(words) > 0:
             line_words.append(words.pop(0))
             fw, fh = font.size(' '.join(line_words + words[:1]))
-            if fw > (3*sprite.rect.width):
+            if fw > (4*sprite.rect.width):
                 break
         
         line = ' '.join(line_words)

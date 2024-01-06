@@ -50,6 +50,9 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_n]:
             return 'no'
 
+    def get_icon(self):
+        return self.icon
+
     def x_pos(self):
         return self.rect.x
 
@@ -85,6 +88,12 @@ class NPC(pygame.sprite.Sprite):
     
     def get_icon(self):
         return self.icon
+    
+    def x_pos(self):
+        return self.rect.x
+
+    def y_pos(self):
+        return self.rect.y
     
     def update(self):
         self.animation_state()
@@ -151,6 +160,9 @@ class Animal(pygame.sprite.Sprite):
         for anim in self.animation_frames:
             anim = pygame.transform.flip(anim, True, False)
         self.image = self.animation_frames[int(self.animation_index)]
+
+    def flip_current_img(self):
+        self.image = pygame.transform.flip(self.image, True, False)
 
     def update(self):
         self.animation_state()
