@@ -63,6 +63,7 @@ cat_acquired = False
 birb_1 = pygame.image.load('graphics/animals/birb_1.png').convert_alpha()
 birb_frames = [birb_1]
 birb_approached = False
+near_birb = False
 
 paper_1 = pygame.image.load('graphics/animals/paper.png').convert_alpha()
 paper_frames = [paper_1]
@@ -91,7 +92,7 @@ birb_abilities = {"Claws": 30, "Beak": 50}
 birb.sprite.set_abilities(birb_abilities)
 
 dog = pygame.sprite.GroupSingle()
-dog.add(Animal(dog_frames, 250, 180, "Pom-pom", anim_types[2]))
+dog.add(Animal(dog_frames, 250, 170, "Pom-pom", anim_types[2]))
 dog_abilities = {"Paw tap": 10, "Cute Bark": 70}
 dog.sprite.set_abilities(dog_abilities)
 
@@ -187,7 +188,7 @@ while True:
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_e and bg_index == 1:
                     # Switch to shop area if press E next to shop
-                    if shop_entrance.sprite.rect.colliderect(player.sprite.rect):
+                    if shop_entrance.sprite.rect.colliderect(player.sprite.rect) and player.sprite.rect.y >150:
                         interaction_active = False
                         pending_choice = False
                         player.sprite.set_x_y(40,80)
@@ -196,9 +197,8 @@ while True:
                 if event.key == pygame.K_e and bg_index == 2 and player.sprite.rect.left < 20 and player.sprite.rect.top < 100 and player.sprite.rect.top > 50:
                     bg_index = 1
                     player.sprite.set_x_y(480,200)
-                # Switch to outside the shop area if press E next to left upper corner near the door inside the shop
+                # Start fight
                 if event.key == pygame.K_f and bg_index == 2:
-                    # Start fight
                     if sprite_dist(shopkeeper.sprite, player.sprite) <= 110:
                         fighting = True
         else:
@@ -430,11 +430,11 @@ while True:
         shopkeeper.draw(screen)
         shopkeeper.update()
         
-        if not birb_approached:
+        if not near_birb:
             birb.draw(screen)
             birb.update()
         
-        if birb_approached:
+        if near_birb:
             birb.sprite.flip_current_img()
             birb.draw(screen)
             birb.update()
@@ -463,6 +463,7 @@ while True:
         dist = sprite_dist(player.sprite, birb.sprite)
         if dist < 70:
             birb_approached = True
+            near_birb = True
             if interaction_active == False:
                 hint('Press E to interact', birb.sprite, interaction_font, screen)
             if player.sprite.player_interaction() == 'interact':
@@ -476,6 +477,8 @@ while True:
                 if birb_acquired and birb.sprite not in player.sprite.animals:
                     player.sprite.add_animals(birb.sprite)
                     fight.renew_animals()  
+        else:
+            near_birb = False
 
         if interaction_active and sprite_dist(player.sprite, shopkeeper.sprite) < 100:
             if birb_approached and not birb_acquired:
@@ -489,9 +492,9 @@ while True:
                     if answer_1 == True:
                         hint('Seeds acquired!', table.sprite, interaction_font, screen)
                         seeds_acquired = True
-            if birb_acquired and not fighting:
-                hint('press F to fight', paper.sprite, interaction_font, screen)
-                speech("Let's mess him up!", dog.sprite, dialogue_font, screen)
-                can_fight = True
+        if birb_acquired and not fighting and dist > 100:
+            hint('press F to fight', paper.sprite, interaction_font, screen)
+            speech("Let's mess him up!", dog.sprite, dialogue_font, screen)
+            can_fight = True
     pygame.display.update()
     clock.tick(60) # Max framerate

@@ -183,9 +183,6 @@ class Animal(pygame.sprite.Sprite):
     def flip_current_img(self):
         self.image = pygame.transform.flip(self.image, True, False)
 
-    def flip_current_img(self):
-        self.image = pygame.transform.flip(self.image, True, False)
-
     def update(self):
         self.animation_state()
 
