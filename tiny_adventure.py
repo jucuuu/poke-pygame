@@ -163,7 +163,7 @@ fighting = False
 intro = True
 current_turn = True
 first_outro_screen = True
-outro = True
+outro = False
 can_fight = False
 
 #Player related
@@ -206,16 +206,16 @@ while True:
             if intro:
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                     intro = False
+            if not fight.ongoing and first_outro_screen:
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                    first_outro_screen = False
+                    outro = True
             else:
                 if event.type == pygame.MOUSEBUTTONDOWN and fight.ability_rects and fight.current_turn and fight.ongoing:
                     for i in range(0,3):
                         if fight.ability_rects[i].collidepoint(event.pos):
                             fight.hit(dmg_text_group, i)
                     fight.draw_animals(screen)
-
-            if first_outro_screen:
-                if event.type == pygame.K_SPACE:
-                    first_outro_screen = False
     
     if fighting and fight.ongoing:        
         if intro == True:

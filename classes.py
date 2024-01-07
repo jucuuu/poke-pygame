@@ -430,8 +430,8 @@ class Fight():
         if self.victory:
             render_wrapped_text(screen, ["VICTORY"], self.even_bigger_font, 300, 175, 'White')
         else:
-            render_wrapped_text(screen, ["DEFEAT"], self.even_bigger_font, 300, 175, 'White')
-        render_wrapped_text(screen, ["press SPACE to continue"], self.small_font, 250, 215, 'White')
+            render_wrapped_text(screen, ["DEFEAT"], self.even_bigger_font, 300, 175, 'Red')
+        render_wrapped_text(screen, ["press SPACE to continue"], self.small_font, 230, 215, 'White')
     
     def outro(self, screen):
         if self.victory:
