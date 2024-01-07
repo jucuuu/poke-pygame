@@ -449,7 +449,7 @@ class Fight():
             
             # Her animals in front
             for i in range(len(self.pl_animals)):
-                anim = self.pl_animals[i]
+                anim = self.pl_animals[len(self.pl_animals)-1-i]
                 anim_icon = anim.icon
                 anim_icon = pygame.transform.rotozoom(anim_icon, 0, 2)
                 anim_icon_rect = anim_icon.get_rect(center = (200+200*i, 300))
