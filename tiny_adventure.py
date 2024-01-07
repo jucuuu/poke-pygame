@@ -17,7 +17,7 @@ interaction_font = pygame.font.Font('font/kongtext.ttf', 10)
 bg_forest = pygame.image.load('graphics/background1.png').convert_alpha()
 bg_shop_outside = pygame.image.load('graphics/background2.png').convert_alpha()
 bg_shop_inside = pygame.image.load('graphics/background3.png').convert_alpha()
-bgs = [bg_forest, bg_shop_outside, bg_shop_outside]
+bgs = [bg_forest, bg_shop_outside, bg_shop_inside]
 bg_index = 0
 current_bg = bgs[bg_index]
 
@@ -38,6 +38,9 @@ trash_back_frames = [trash_back]
 
 table = pygame.image.load('graphics/table.png').convert_alpha()
 table_frames = [table]
+
+shop_entrance =  pygame.image.load('graphics/shop_entrance.png').convert_alpha()
+shop_entrance_frames = [shop_entrance]
 
 # Animals
 dog = pygame.image.load('graphics/animals/doggo_1.png').convert_alpha()
@@ -104,11 +107,12 @@ cat = pygame.sprite.GroupSingle()
 cat.add(Animal(cat_frames, 680, 180))
 
 birb = pygame.sprite.GroupSingle()
-birb.add(Animal(birb_frames,460,180))
+birb.add(Animal(birb_frames,670,160))
 seeds_acquired = False
 birb_acquired = False
 
-shop_entrance = pygame.Rect(600,200,100,100)
+shop_entrance = pygame.sprite.GroupSingle()
+shop_entrance.add(Static(shop_entrance_frames, 600, 200))
 
 shopkeeper = pygame.sprite.GroupSingle()
 shopkeeper.add(NPC(shopkeep_frames, 400, 50))
@@ -127,12 +131,18 @@ while True:
             pygame.quit()
             exit()
         if event.type == pygame.KEYUP:
-            if event.key == pygame.K_e and bg_index == 1 and player.sprite.y_pos() > 200:
+            if event.key == pygame.K_e and bg_index == 1 and player.sprite.y_pos() > 150:
                 # Switch to shop area if press E next to shop
-                if shop_entrance.colliderect(player.sprite.rect):
+                if shop_entrance.sprite.rect.colliderect(player.sprite.rect):
                     interaction_active = False
                     pending_choice = False
+                    player.sprite.set_x_y(40,80)
                     bg_index = 2
+                # Switch to outside the shop area if press E next to left upper corner near the door inside the shop
+            if event.key == pygame.K_e and bg_index == 2 and player.sprite.x_pos() <20 and player.sprite.y_pos() < 100 and player.sprite.y_pos()>50:
+                bg_index = 1
+                player.sprite.set_x_y(480,200)
+                print('worked')
     if bg_index == 0:
         player.draw(screen)
         player.update()
@@ -172,14 +182,14 @@ while True:
         if dog_moved and dist <50 and not interaction_active and not dog_acquired:
             hint('Press E to interact', dog.sprite, interaction_font, screen)
 
-        if interaction_active and dog_moved and dist < 50:
+        if interaction_active and dog_moved and dist < 50 and not dog_acquired:
             speech('Kind stranger! Please come with me and help fight the evil (PRESS SPACE TO CONTINUE)', dog.sprite, dialogue_font, screen)
-            if pending_choice and dog_moved and dist < 50:
-                confirmation('>Sure!!!(PRESS Y)', '>Ehh I will pass..(PRESS N)', dialogue_font, screen)
-                if answer_1:
-                    speech('Yayy!', dog.sprite, dialogue_font, screen)
-                if answer_2:
-                    speech('You think you have the rights to decline?', dog.sprite, dialogue_font, screen)
+        if pending_choice and dog_moved and dist < 50:
+            confirmation('>Sure!!!(PRESS Y)', '>Ehh I will pass..(PRESS N)', dialogue_font, screen)
+            if answer_1:
+                speech('Yayy!', dog.sprite, dialogue_font, screen)
+            if answer_2:
+                speech('You think you have the rights to decline?', dog.sprite, dialogue_font, screen)
         
         if answer_1 or answer_2:
             hint('PomPom has joined your adventure!', dog.sprite, interaction_font, screen)
@@ -247,8 +257,10 @@ while True:
 
         trash_front.draw(screen)
         trash_front.update()
-        #screen.blit(shop_entr, (600,200))
-        pygame.draw.rect(screen, 'red', shop_entrance)
+       
+        shop_entrance.draw(screen)
+        shop_entrance.update()
+
         
         for tree in tree_group_upper:
             if player.sprite.rect.colliderect(tree.rect):
@@ -271,10 +283,10 @@ while True:
             pending_choice = False
             player.sprite.set_x_y(750, 200)
         
-        if shop_entrance.colliderect(player.sprite.rect) and player.sprite.y_pos() > 200 and cat_acquired == False:
+        if shop_entrance.sprite.rect.colliderect(player.sprite.rect) and player.sprite.y_pos() > 150 and cat_acquired == False:
             speech('A shop with a trash cat outside! This must be a bad omen...', dog.sprite, dialogue_font, screen)
 
-        if shop_entrance.colliderect(player.sprite.rect) and player.sprite.y_pos() > 200 and cat_acquired == True:
+        if shop_entrance.sprite.rect.colliderect(player.sprite.rect) and player.sprite.y_pos() > 150 and cat_acquired == True:
             speech('Time to check out inside the shop!', dog.sprite, dialogue_font, screen)
 
         dist = sprite_dist(player.sprite, cat.sprite)
@@ -299,13 +311,12 @@ while True:
                     
 
     if bg_index == 2:
-        screen.fill((0,0,255))
         player.draw(screen)
         player.update()
 
         shopkeeper.draw(screen)
         shopkeeper.update()
-
+        
         if not birb_approached:
             birb.draw(screen)
             birb.update()
@@ -318,10 +329,17 @@ while True:
         table.draw(screen)
         table.update()
         
-        speech('velkam bruh', shopkeeper.sprite, dialogue_font, screen)
+        if not seeds_acquired:
+            speech('velkam bruh', shopkeeper.sprite, dialogue_font, screen)
         
-        if player.sprite.rect.x <= -50 or player.sprite.rect.x >= 450:
-            player.sprite.set_x_y(100, 200)
+        if player.sprite.rect.x <= 0:
+            player.sprite.rect.x = 0
+        if player.sprite.rect.x >= 735:
+            player.sprite.rect.x = 735
+        if player.sprite.rect.y <= 20:
+            player.sprite.rect.y = 20
+        if player.sprite.rect.y >= 350:
+            player.sprite.rect.y = 350
         
         dist = sprite_dist(player.sprite, birb.sprite)
         if dist < 70:
@@ -340,7 +358,7 @@ while True:
             birb_approached = False
 
         if interaction_active and sprite_dist(player.sprite, shopkeeper.sprite) < 30:
-            speech('Could I buy some seeds for the birb please? (press SPACE to continue)', player.sprite, dialogue_font, screen)
+            speech('Could I buy some seeds please? (press SPACE to continue)', player.sprite, dialogue_font, screen)
             if player.sprite.player_interaction() == 'next':
                 pending_choice = True
             if pending_choice == True:
