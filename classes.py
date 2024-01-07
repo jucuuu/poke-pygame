@@ -129,8 +129,8 @@ class Animal(pygame.sprite.Sprite):
         if type == 'Lazy':
             self.max_hp = 175
         else: self.max_hp = 100
-        self.alive = True
         self.curr_hp = self.max_hp
+        self.alive = True
     
     def set_abilities(self, abilities): # abilities - dict with ability name as key, ability dmg as value
         self.abilities = OrderedDict(abilities)
@@ -187,18 +187,17 @@ class HealthBar():
         pygame.draw.rect(screen, 'green', (self.x, self.y, 250 * ratio, 20))
 
 class Fight():
-    def __init__(self, player, enemy):
+    def __init__(self, player, enemy, screen):
+        self.screen = screen
         self.small_font = pygame.font.Font('font/kongtext.ttf', 14)
         self.big_font = pygame.font.Font('font/kongtext.ttf', 20)
-        
+        self.even_bigger_font = pygame.font.Font('font/kongtext.ttf', 30)
         self.action = 1
-        
         self.player = player
         self.enemy = enemy
         
         self.pl_animals = player.animals
         self.enemy_animals = enemy.animals
-        
         self.pl_curr_animal = player.animals[0]
         self.pl_standby = [anim for anim in self.pl_animals if anim.alive and anim != self.pl_curr_animal]
         self.enemy_curr_animal = enemy.animals[0]
@@ -212,6 +211,10 @@ class Fight():
         
         self.ability_rects = []
         self.standby_rects = []
+    
+    def renew_animals(self):
+        self.pl_animals = self.player.animals
+        self.pl_standby = [anim for anim in self.pl_animals if anim.alive and anim != self.pl_curr_animal]
     
     def intro(self, screen, event):
         #self.draw_bg(screen)
@@ -288,8 +291,9 @@ class Fight():
         screen.blit(icon_2, icon_2_rect)
             
         # Show small icons of other animals - if dead, greyed out
-        standby_text = self.small_font.render('on standby:', False, 'Black')
-        screen.blit(standby_text, (70, 340))
+        if self.ongoing:
+            standby_text = self.small_font.render('on standby:', False, 'Black')
+            screen.blit(standby_text, (70, 340))
         for i in range(len(self.player.animals)):
             anim = self.player.animals[i]
             if anim in self.pl_standby and anim.alive:
@@ -333,7 +337,6 @@ class Fight():
             render_wrapped_text(screen, text_wrap(str(v), self.big_font, 700), self.big_font, 745, 280+i, 'Red')
             i += 40
     
-    # Hit
     def hit(self, group, ability = 0):
         if self.current_turn:
             # Input to pick abilities
@@ -343,9 +346,14 @@ class Fight():
             damage += ability_dmg[ability]
             
             crit = random.randint(-5,5) 
-            self.enemy_curr_animal.curr_hp -= damage + crit
-                
-            dmg_num = DamageText(self.enemy_curr_animal.rect.centerx, self.enemy_curr_animal.rect.y, str(damage), 'Red')
+            self.enemy_curr_animal.curr_hp -= (damage + crit)
+        
+            curr_an_rect = pygame.Surface((300,200))
+            curr_an_rect.set_alpha(0)
+            curr_an_rect.fill((255,255,255))
+            self.screen.blit(curr_an_rect, (560,60))
+            
+            dmg_num = DamageText(560, 60, f'-{(damage+crit)}', 'Red')
             group.add(dmg_num)
         
             if self.enemy_curr_animal.curr_hp < 1:
@@ -367,9 +375,14 @@ class Fight():
             damage += ability_dmg[ability]
             
             crit = random.randint(-5,5) 
-            self.pl_curr_animal.curr_hp -= damage + crit
-                
-            dmg_num = DamageText(self.pl_curr_animal.rect.centerx, self.pl_curr_animal.rect.y, str(damage), 'Red')
+            self.pl_curr_animal.curr_hp -= (damage + crit)
+            
+            curr_an_rect = pygame.Surface((300,200))
+            curr_an_rect.set_alpha(0)
+            curr_an_rect.fill((255,255,255))
+            self.screen.blit(curr_an_rect, (240,160))
+            
+            dmg_num = DamageText(240, 180, f'-{(damage+crit)}', 'Red')
             group.add(dmg_num)
         
             if self.pl_curr_animal.curr_hp < 1:
@@ -382,21 +395,77 @@ class Fight():
                     self.victory = False
             self.current_turn = True
     
-    def outro(self):
+    def outro_text(self, screen):
+        pygame.draw.rect(screen, (0,0,0,128), (0,150,800,100))
         if self.victory:
-            # First, victory screen on top of the battle
-            # Playerette with her animals on the screen, "victory" on top, Playerette talks about the power of friendship
-            pass
+            render_wrapped_text(screen, ["VICTORY"], self.even_bigger_font, 300, 175, 'White')
         else:
-            # First, defeat screen on top of the battle
-            # Shopkeeper with his gang on the screen, "defeat" on top, he says something about not stepping foot into the wrong store
-            pass
+            render_wrapped_text(screen, ["DEFEAT"], self.even_bigger_font, 300, 175, 'White')
+        render_wrapped_text(screen, ["press SPACE to continue"], self.small_font, 250, 215, 'White')
     
-    def eradicate(self):
-        self.kill()
+    def outro(self, screen):
+        if self.victory:
+            screen.fill((153, 255, 153))
+            render_wrapped_text(screen, ['VICTORY'], self.even_bigger_font, 300, 30, 'Black')
+            
+            # Playerette
+            pl_icon = self.player.icon
+            pl_icon = pygame.transform.rotozoom(pl_icon, 0, 3)
+            pl_icon_rect = pl_icon.get_rect(center = (400, 200))
+            screen.blit(pl_icon, pl_icon_rect)
+            
+            # Her animals in front
+            for i in range(len(self.pl_animals)):
+                anim = self.pl_animals[i]
+                anim_icon = anim.icon
+                anim_icon = pygame.transform.rotozoom(anim_icon, 0, 2)
+                anim_icon_rect = anim_icon.get_rect(center = (200+200*i, 300))
+                screen.blit(anim_icon, anim_icon_rect)
+            
+            pygame.draw.rect(screen, 'White', (80,120,235,100),0,15)
+            pygame.draw.polygon(screen, 'White', ((315,140),(315,170),(330,155)))
+            
+            for anim in self.pl_animals:
+                if anim.name == 'Pom-pom':
+                    pl_text = "The power of friendship won yet again! Right, Pom-Pom?"
+                else: pl_text =  "The power of friendship won yet again!"
+            wrap_pl_text = text_wrap(pl_text, self.small_font, 210)
+            render_wrapped_text(screen, wrap_pl_text, self.small_font, 90, 135, 'Black', 3)
+            
+            for anim in self.pl_animals:
+                if anim.name == 'Pom-pom':
+                    pygame.draw.rect(screen, 'White', (490,180,275,55),0,6)
+                    pygame.draw.polygon(screen, 'White', ((725,235),(685,235),(665,260)))
+                    render_wrapped_text(screen, ['I have no time for', 'your foolishness.'], self.small_font, 500, 190, 'Black', 5)
+        else:
+            screen.fill((126,54,54))
+            # Shopkeeper with his gang on the screen, "defeat" on top, he says something about not stepping foot into the wrong store
+            render_wrapped_text(screen, ['DEFEAT'], self.even_bigger_font, 310, 30, 'Black')
+            
+            # Shopkeeper
+            en_icon = self.enemy.icon
+            en_icon = pygame.transform.rotozoom(en_icon, 0, 3)
+            en_icon_rect = en_icon.get_rect(center = (400, 200))
+            screen.blit(en_icon, en_icon_rect)
+            
+            # His animals in front
+            for i in range(len(self.enemy_animals)):
+                anim = self.enemy_animals[i]
+                anim_icon = anim.icon
+                anim_icon = pygame.transform.rotozoom(anim_icon, 0, 2)
+                anim_icon_rect = anim_icon.get_rect(center = (200+200*i, 300))
+                screen.blit(anim_icon, anim_icon_rect)
+            
+            pygame.draw.rect(screen, 'Black', (490,80,270,175),0,15)
+            pygame.draw.polygon(screen, 'Black', ((490,190),(490,225),(470,205)))
+            
+            shopkeeper_text = "Never should have come here. Now you'll think twice before stepping foot into the wrong shop."
+            wrap_shopk_text = text_wrap(shopkeeper_text, self.small_font, 240)
+            render_wrapped_text(screen, wrap_shopk_text, self.small_font, 510, 100, 'White', 5)
 
-class InfoText():
-    pass
+            pygame.draw.rect(screen, 'Black', (145,225,150,30),0,6)
+            pygame.draw.polygon(screen, 'Black', ((240,255),(270,255),(212,270)))
+            render_wrapped_text(screen, ['lol loser'], self.small_font, 155, 234, 'White', 5)
 
 class InteractableText():
     def __init__(self, x, y):
@@ -410,6 +479,3 @@ class InteractableText():
     
     def eradicate(self):
         self.kill()
-
-class TitleText():
-    pass

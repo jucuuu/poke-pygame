@@ -147,11 +147,14 @@ shopkeeper.sprite.animals = [raccoon.sprite, rat.sprite, paper.sprite]
 player.sprite.animals = [cat.sprite, birb.sprite]
 
 interact = InteractableText(player.sprite.rect.left, player.sprite.rect.top)
+dmg_text_group = pygame.sprite.Group()
 
 fighting = False
 intro = True
 current_turn = True
-fight = Fight(player.sprite, shopkeeper.sprite)
+fight = Fight(player.sprite, shopkeeper.sprite, screen)
+first_outro_screen = True
+outro = True
 
 while True:
     for event in pygame.event.get():
@@ -173,7 +176,7 @@ while True:
                         fighting = True
         else:
             fight.draw_bg(screen)
-            if intro == True:
+            if intro:
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                     intro = False
             else:
@@ -187,9 +190,13 @@ while True:
                     fight.hit(dmg_text_group)
                     fight.current_turn = True
                     fight.draw_animals(screen)
+
+            if first_outro_screen:
+                if event.type == pygame.K_SPACE:
+                    first_outro_screen = False
+                
     
-    if fighting:        
-        dmg_text_group = pygame.sprite.Group()
+    if fighting and fight.ongoing:        
         if intro == True:
             fight.intro(screen, event)
         else:
@@ -203,9 +210,21 @@ while True:
             render_wrapped_text(screen, text_wrap(f"{fight.enemy_curr_animal.name}'s HP", dialogue_font, 700), dialogue_font, 440, 170, 'Black')
             enemy_curr_animal_healthbar = HealthBar(440, 200, fight.enemy_curr_animal.curr_hp, fight.enemy_curr_animal.max_hp)
             
-            
             pl_curr_animal_healthbar.draw(screen, fight.pl_curr_animal.curr_hp)
             enemy_curr_animal_healthbar.draw(screen, fight.enemy_curr_animal.curr_hp)
+            
+            dmg_text_group.update()
+            dmg_text_group.draw(screen)
+    elif fighting and not fight.ongoing:
+        if first_outro_screen:
+            fight.draw_bg(screen)
+            fight.draw_icons(screen)
+            fight.draw_animals(screen)
+            pl_curr_animal_healthbar = HealthBar(20, 350, fight.pl_curr_animal.curr_hp, fight.pl_curr_animal.max_hp)
+            enemy_curr_animal_healthbar = HealthBar(440, 200, fight.enemy_curr_animal.curr_hp, fight.enemy_curr_animal.max_hp)
+            fight.outro_text(screen)
+        if outro:
+            fight.outro(screen)
             
     else: screen.blit(bgs[bg_index],(0,0))
     if bg_index == 0 and not fighting:
@@ -240,7 +259,9 @@ while True:
                     dog_moved = True
                     dog.sprite.flipped()
                     bush.sprite.no_animation()
-                if dog.sprite not in player.sprite.animals: player.sprite.add_animals(dog.sprite)
+                if dog.sprite not in player.sprite.animals:
+                    player.sprite.add_animals(dog.sprite)
+                    fight.renew_animals()
         
         for tree in tree_group_left:
             if player.sprite.rect.colliderect(tree.rect):

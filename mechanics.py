@@ -26,10 +26,11 @@ def text_wrap(text, font, width): # Line width
         lines.append(line)
     return lines
 
-def render_wrapped_text(screen, lines, font, x, y, color): # (x,y) - position of text
+def render_wrapped_text(screen, lines, font, x, y, color, line_y = 0): # (x,y) - position of text
     y_offset = 0
     for line in lines:
         fw, fh = font.size(line)
+        fh += line_y
         
         tx = x
         ty = y + y_offset
