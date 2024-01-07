@@ -7,10 +7,12 @@ def sprite_dist(sprite_1, sprite_2):
     """
     Calculates the distance between two given sprites.
     """
-    #return math.sqrt((sprite_1.x_pos() - sprite_2.x_pos())**2 + (sprite_1.y_pos() - sprite_2.y_pos())**2)
     return math.sqrt((sprite_1.rect.left - sprite_2.rect.left)**2 + (sprite_1.rect.top - sprite_2.rect.top)**2)
 
 def text_wrap(text, font, width): # Line width
+    """
+    Breaks text into lines within the provided width.
+    """
     words = text.split()
     
     lines = []
@@ -27,6 +29,9 @@ def text_wrap(text, font, width): # Line width
     return lines
 
 def render_wrapped_text(screen, lines, font, x, y, color, line_y = 0, y_offset = 0): # (x,y) - position of text
+    """
+    Render lines of text.
+    """
     for line in lines:
         fw, fh = font.size(line)
         fh += line_y
@@ -42,9 +47,9 @@ def render_wrapped_text(screen, lines, font, x, y, color, line_y = 0, y_offset =
 
 def speech(text, sprite, font, screen):
     """
-    Speech mechanic.
+    Dialogue mechanic.
     """
-    icon = sprite.get_icon()
+    icon = sprite.icon
     icon = pygame.transform.rotozoom(icon, 0, 1.5)
     icon_rect = icon.get_rect(center = (95, 300))
     
@@ -65,7 +70,7 @@ def confirmation(option1, option2, font, screen):
     screen.blit(text_rect, (50, 250))
     pygame.draw.rect(screen, (239, 232, 76), ((60, 260), (80, 100)))
     lines = [option1, option2]
-    render_wrapped_text(screen, lines, font, 70, 270, (255,255,255))
+    render_wrapped_text(screen, lines, font, 150, 270, (255,255,255))
 
 def hint(text, sprite, font, screen):
     wrapped_text = text_wrap(text, font, 4*sprite.rect.width)

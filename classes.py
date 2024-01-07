@@ -229,8 +229,9 @@ class Fight():
         
         self.pl_animals = player.animals
         self.enemy_animals = enemy.animals
-        self.pl_curr_animal = player.animals[0]
-        self.pl_standby = [anim for anim in self.pl_animals if anim.alive and anim != self.pl_curr_animal]
+        if self.pl_animals:
+            self.pl_curr_animal = player.animals[0]
+            self.pl_standby = [anim for anim in self.pl_animals if anim.alive and anim != self.pl_curr_animal]
         self.enemy_curr_animal = enemy.animals[0]
         self.enemy_standby = [anim for anim in self.enemy_animals if anim.alive and anim != self.enemy_curr_animal]
         
@@ -244,6 +245,7 @@ class Fight():
         self.standby_rects = []
     
     def renew_animals(self):
+        if len(self.pl_animals) == 1: self.pl_curr_animal = self.pl_animals[0]
         self.pl_animals = self.player.animals
         self.pl_standby = [anim for anim in self.pl_animals if anim.alive and anim != self.pl_curr_animal]
     

@@ -1,5 +1,5 @@
 # poke-pygame
-## Programmas apraksts
+## Description
 Spēle ar vairākām lokācijām, kur spēlētājs atrod dzīvnieciņus un piedalās "turn-based" kaujā ar NPC, kur tiek izmantotas dzīvnieciņu dažādās spējas.
 ## Instrukcijas, kā palaist programmu
 1. Ielādēt repozitorijas failus, piemēram, izmantojot "git clone" komandu.
