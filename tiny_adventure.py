@@ -156,9 +156,9 @@ shop_entrance.add(Static(shop_entrance_frames, 600, 200))
 
 dmg_text_group = pygame.sprite.Group()
 
+# Gameplay booleans
 seeds_acquired = False
 birb_acquired = False
-
 fighting = False
 intro = True
 current_turn = True
@@ -172,6 +172,7 @@ pending_choice = False
 answer_1 = False
 answer_2 = False
 
+# NPC's and player's animal lists
 shopkeeper.sprite.animals = [raccoon.sprite, rat.sprite, paper.sprite]
 player.sprite.animals = []
 
@@ -197,29 +198,29 @@ while True:
                 if event.key == pygame.K_e and bg_index == 2 and player.sprite.rect.left < 20 and player.sprite.rect.top < 100 and player.sprite.rect.top > 50:
                     bg_index = 1
                     player.sprite.set_x_y(480,200)
-                # Start fight
+                # Start fight if press f next to the shopkeeper
                 if event.key == pygame.K_f and bg_index == 2:
                     if sprite_dist(shopkeeper.sprite, player.sprite) <= 110:
                         fighting = True
         else:
             fight.draw_bg(screen)
             if intro:
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE: # Leave intro screen
                     intro = False
             if not fight.ongoing and first_outro_screen:
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE: # Switch to outro
                     first_outro_screen = False
                     outro = True
             else:
                 if event.type == pygame.MOUSEBUTTONDOWN and fight.ability_rects and fight.current_turn and fight.ongoing:
                     for i in range(0,3):
                         if fight.ability_rects[i].collidepoint(event.pos):
-                            fight.hit(dmg_text_group, i)
+                            fight.hit(dmg_text_group, i) # Player picks animal's ability to use
                     fight.draw_animals(screen)
                 if event.type == pygame.MOUSEBUTTONDOWN and fight.standby_rects:
                     for i in range(len(fight.pl_standby)):
                         print([anim.name for anim in fight.pl_standby])
-                        if fight.standby_rects[i-1].collidepoint(event.pos):
+                        if fight.standby_rects[i-1].collidepoint(event.pos): # Player picks animal from standby
                             fight.pick_animal(i-1)
                     fight.draw_animals(screen)
     
@@ -232,6 +233,7 @@ while True:
             fight.draw_animals(screen)
             fight.draw_abilities(screen)
             
+            # Current player's and NPC's animals' healthbars
             render_wrapped_text(screen, text_wrap(f"{fight.pl_curr_animal.name}'s HP", dialogue_font, 700), dialogue_font, 20, 260, 'Black')
             pl_curr_animal_healthbar = HealthBar(20, 290, fight.pl_curr_animal.curr_hp, fight.pl_curr_animal.max_hp)
             render_wrapped_text(screen, text_wrap(f"{fight.enemy_curr_animal.name}'s HP", dialogue_font, 700), dialogue_font, 440, 170, 'Black')
@@ -240,27 +242,27 @@ while True:
             pl_curr_animal_healthbar.draw(screen, fight.pl_curr_animal.curr_hp)
             enemy_curr_animal_healthbar.draw(screen, fight.enemy_curr_animal.curr_hp)
             
+            # When hit, display damage numbers
             dmg_text_group.update()
             dmg_text_group.draw(screen)
             
+            # Enemy's turn
             if not fight.current_turn and fight.ongoing:
                 fight.hit(dmg_text_group)
                 fight.current_turn = True
                 fight.draw_animals(screen)
-    elif fighting and not fight.ongoing:
+    elif fighting and not fight.ongoing: # Display outro after fight
         if first_outro_screen:
             fight.draw_bg(screen)
             fight.draw_icons(screen)
             fight.draw_animals(screen)
-            pl_curr_animal_healthbar = HealthBar(20, 350, fight.pl_curr_animal.curr_hp, fight.pl_curr_animal.max_hp)
-            enemy_curr_animal_healthbar = HealthBar(440, 200, fight.enemy_curr_animal.curr_hp, fight.enemy_curr_animal.max_hp)
             fight.outro_text(screen)
         if outro:
             fight.outro(screen)
                 
-    else: screen.blit(bgs[bg_index],(0,0))
+    else: screen.blit(bgs[bg_index],(0,0)) # Display area backgrounds out of fight
     
-    if bg_index == 0 and not fighting:
+    if bg_index == 0 and not fighting: # Forest area
         player.draw(screen)
         player.update()
         
@@ -296,7 +298,7 @@ while True:
         if player.sprite.player_interaction() == 'no':
             answer_2 = True
 
-        if dog_moved and dist <50 and not interaction_active and not dog_acquired:
+        if dog_moved and dist < 50 and not interaction_active and not dog_acquired:
             hint('Press E to interact', dog.sprite, interaction_font, screen)
 
         if interaction_active and dog_moved and dist < 50 and not dog_acquired:
@@ -309,13 +311,11 @@ while True:
                 speech('You think you have the rights to decline?', dog.sprite, dialogue_font, screen)
         
         if answer_1 or answer_2:
-            hint('PomPom has joined your adventure!', dog.sprite, interaction_font, screen)
+            hint('Pom-pom has joined your adventure!', dog.sprite, interaction_font, screen)
             dog_acquired = True
             if dog_acquired and dog.sprite not in player.sprite.animals:
                 player.sprite.add_animals(dog.sprite)
                 fight.renew_animals()
-            # if dist <50:
-            #     interaction_active = False
 
         if not dog_moved:
             if dist < 50:
@@ -327,6 +327,7 @@ while True:
                     dog.sprite.flipped()
                     bush.sprite.no_animation()
         
+        # Collision with trees
         for tree in tree_group_left:
             if player.sprite.rect.colliderect(tree.rect):
                 player_x_limit = tree.rect.right -20
@@ -348,15 +349,12 @@ while True:
             pending_choice = False
             player.sprite.set_x_y(100, 200)
 
-    elif bg_index == 1 and not fighting:
+    elif bg_index == 1 and not fighting: # Outside shop area
         tree_group_right.draw(screen)
         tree_group_right.update()
 
         tree_group_upper.draw(screen)
         tree_group_upper.update()
-
-        tree_group_lower.draw(screen)
-        tree_group_lower.update()
         
         trash_back.draw(screen)
         trash_back.update()
@@ -379,8 +377,11 @@ while True:
         
         shop_entrance.draw(screen)
         shop_entrance.update()
-
         
+        tree_group_lower.draw(screen)
+        tree_group_lower.update()
+
+        # Collision with trees
         for tree in tree_group_upper:
             if player.sprite.rect.colliderect(tree.rect):
                 player_y_limit = tree.rect.bottom
@@ -415,7 +416,8 @@ while True:
         
             if player.sprite.player_interaction() == 'interact':
                 interaction_active = True
-
+                
+        # "Catching" the cat to acquire it into the player's animals list
             if interaction_active and dist < 50 and cat_moved == False:
                 speech('Dont you dare come any closer!', cat.sprite, dialogue_font, screen)
                 if dist < 40:
@@ -432,7 +434,7 @@ while True:
                 fight.renew_animals()
                     
 
-    if bg_index == 2 and not fighting:
+    if bg_index == 2 and not fighting: # Area inside the shop
         shopkeeper.draw(screen)
         shopkeeper.update()
         
@@ -498,7 +500,7 @@ while True:
                     if answer_1 == True:
                         hint('Seeds acquired!', table.sprite, interaction_font, screen)
                         seeds_acquired = True
-        if birb_acquired and not fighting and dist > 100:
+        if birb_acquired and not fighting and dist > 100: # Fighting option after bird is acquired
             hint('press F to fight', paper.sprite, interaction_font, screen)
             speech("Let's mess him up!", dog.sprite, dialogue_font, screen)
             can_fight = True

@@ -64,6 +64,9 @@ def speech(text, sprite, font, screen):
     render_wrapped_text(screen, lines, font, 150, 270, 'White')
         
 def confirmation(option1, option2, font, screen):
+    """
+    Render player input options.
+    """
     text_rect = pygame.Surface((700, 120))
     text_rect.set_alpha(240)
     text_rect.fill((0,0,0))
@@ -73,10 +76,16 @@ def confirmation(option1, option2, font, screen):
     render_wrapped_text(screen, lines, font, 150, 270, (255,255,255))
 
 def hint(text, sprite, font, screen):
+    """
+    Render informational text on the screen.
+    """
     wrapped_text = text_wrap(text, font, 4*sprite.rect.width)
     render_wrapped_text(screen, wrapped_text, font, sprite.rect.left-30, sprite.rect.top-30, (255,255,255))
 
 def sprite_movement(sprite, target_x, frames_to_complete_movement, dist, speed):
+    """
+    Running animation.
+    """
     if dist < 100:
         movement_distance = (target_x - sprite.rect.x) / frames_to_complete_movement
         sprite.rect.x += speed * movement_distance
