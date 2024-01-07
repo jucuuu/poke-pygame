@@ -1,6 +1,5 @@
 import pygame
 import math
-from collections import OrderedDict
 from classes import *
 
 def sprite_dist(sprite_1, sprite_2):
