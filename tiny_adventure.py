@@ -216,6 +216,12 @@ while True:
                         if fight.ability_rects[i].collidepoint(event.pos):
                             fight.hit(dmg_text_group, i)
                     fight.draw_animals(screen)
+                if event.type == pygame.MOUSEBUTTONDOWN and fight.standby_rects:
+                    for i in range(len(fight.pl_standby)):
+                        print([anim.name for anim in fight.pl_standby])
+                        if fight.standby_rects[i-1].collidepoint(event.pos):
+                            fight.pick_animal(i-1)
+                    fight.draw_animals(screen)
     
     if fighting and fight.ongoing:        
         if intro == True:

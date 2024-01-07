@@ -21,9 +21,6 @@ class Player(pygame.sprite.Sprite):
         
         self.animals = []
     
-    def get_animals(self):
-        return self.animals
-    
     def animation_state(self):
         self.image = self.player_walk[int(self.animation_index)]
     
@@ -56,12 +53,6 @@ class Player(pygame.sprite.Sprite):
             return 'yes'
         if keys[pygame.K_n]:
             return 'no'
-
-    def x_pos(self):
-        return self.rect.x
-
-    def y_pos(self):
-        return self.rect.y
     
     def set_x_y(self, x, y):
         self.rect.x = x
@@ -84,33 +75,17 @@ class NPC(pygame.sprite.Sprite):
         
         self.image = self.animation_frames[self.animation_index]
         self.rect = self.image.get_rect(center = (x, y))
-        
         self.icon = self.animation_frames[0]
         
         self.animals = []
-    
-    def get_animals(self):
-        return self.animals
     
     def animation_state(self):
         self.animation_index += 0.1
         if self.animation_index >= len(self.animation_frames): self.animation_index = 0
         self.image = self.animation_frames[int(self.animation_index)]
     
-    def get_icon(self):
-        return self.icon
-    
-    def x_pos(self):
-        return self.rect.x
-
-    def y_pos(self):
-        return self.rect.y
-    
     def update(self):
         self.animation_state()
-    
-    def dialogue(self):
-        pass
 
 class Static(pygame.sprite.Sprite):
     def __init__(self, animation_list, x, y):
@@ -127,7 +102,6 @@ class Static(pygame.sprite.Sprite):
         if self.animation_index >= len(self.animation_frames): self.animation_index = 0
         self.image = self.animation_frames[int(self.animation_index)]
 
-    #Ups shitas bus japartaisa jo shito tikai kurmam vajag
     def no_animation(self):
         self.image = self.animation_frames.pop()
         
@@ -167,9 +141,6 @@ class Animal(pygame.sprite.Sprite):
     
     def switch_image(self, frame):
         self.image = self.animation_frames[frame]
-
-    def get_icon(self):
-        return self.icon
     
     def set_x_y(self, x, y):
         self.rect.x = x
@@ -196,6 +167,9 @@ class DamageText(pygame.sprite.Sprite):
         self.counter = 0
 
     def update(self):
+        """
+        Damage numbers float up and disappear.
+        """
         self.rect.y -= 1
         self.counter += 1
         if self.counter > 30:
@@ -228,9 +202,9 @@ class Fight():
         self.enemy_animals = enemy.animals
         if self.pl_animals:
             self.pl_curr_animal = player.animals[0]
-            self.pl_standby = [anim for anim in self.pl_animals if anim.alive and anim != self.pl_curr_animal]
+            self.pl_standby = [anim for anim in self.pl_animals if (anim.alive and anim != self.pl_curr_animal)]
         self.enemy_curr_animal = enemy.animals[0]
-        self.enemy_standby = [anim for anim in self.enemy_animals if anim.alive and anim != self.enemy_curr_animal]
+        self.enemy_standby = [anim for anim in self.enemy_animals if (anim.alive and anim != self.enemy_curr_animal)]
         
         self.current_turn = True # Player starts
         self.can_pick = True
@@ -247,7 +221,6 @@ class Fight():
         self.pl_standby = [anim for anim in self.pl_animals if anim.alive and anim != self.pl_curr_animal]
     
     def intro(self, screen, event):
-        #self.draw_bg(screen)
         screen.fill((153, 255, 153))
         text_1 = f"Fight between {self.player.name} and the {self.enemy.name}!"
         render_wrapped_text(screen, text_wrap(text_1, self.big_font, 700), self.big_font, 20, 20, 'Black')
@@ -273,11 +246,11 @@ class Fight():
             if anim.alive == True:
                 self.ongoing = True
     
-    def pick_animal(self, event):
-        if event.type == pygame.K_1:
-            self.pl_curr_animal = self.pl_standby[0]
-        if event.type == pygame.K_2:
-            self.pl_curr_animal = self.pl_standby[1]
+    def pick_animal(self, i):
+        anim = self.pl_standby[i]
+        self.pl_curr_animal = anim
+        self.pl_standby.clear()
+        self.pl_standby = [anim for anim in self.pl_animals if anim is not self.pl_curr_animal]
 
     def draw_bg(self, screen):
         # Draw fight screen
@@ -306,16 +279,17 @@ class Fight():
             self.enemy_curr_animal = self.enemy_standby.pop(0)
     
     def draw_animals(self, screen):
+        self.standby_rects.clear()
         self.switch_if_dead()
         # Player: Show current animal scaled on the ellipse, the list of their abilities + their damage
-        icon = self.pl_curr_animal.get_icon()
+        icon = self.pl_curr_animal.icon
         icon = pygame.transform.rotozoom(icon, 0, 3)
         icon = pygame.transform.flip(icon, True, False)
         icon_rect = icon.get_rect(center = (240, 180))
         screen.blit(icon, icon_rect)
             
         # NPC: Show current animal scaled on the ellipse, the list of their abilities + their damage
-        icon_2 = self.enemy_curr_animal.get_icon()
+        icon_2 = self.enemy_curr_animal.icon
         icon_2 = pygame.transform.rotozoom(icon_2, 0, 3)
         icon_2_rect = icon_2.get_rect(center = (560, 80))
         screen.blit(icon_2, icon_2_rect)
@@ -324,18 +298,20 @@ class Fight():
         if self.ongoing:
             standby_text = self.small_font.render('on standby:', False, 'Black')
             screen.blit(standby_text, (70, 340))
-        for i in range(len(self.player.animals)):
-            anim = self.player.animals[i]
+        for i in range(len(self.pl_standby)):
+            anim = self.pl_standby[i]
             if anim in self.pl_standby and anim.alive:
-                small_icon = anim.get_icon()
-                small_icon_rect = small_icon.get_rect(center = (40+i*40, 380))
+                small_icon = anim.icon
+                small_icon_rect = small_icon.get_rect(center = (80+i*40, 380))
+                standby_rect = pygame.Rect(60+i*40,360,40,40)
+                self.standby_rects.append(standby_rect)
                 screen.blit(small_icon, small_icon_rect)
             
         # Show small icons of NPC's animals
         for i in range(len(self.enemy.animals)):
             anim = self.enemy.animals[i]
             if anim in self.enemy_standby:
-                small_icon = anim.get_icon()
+                small_icon = anim.icon
                 small_icon_rect = small_icon.get_rect(center = (690+i*40, 100))
                 screen.blit(small_icon, small_icon_rect)
     
