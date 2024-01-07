@@ -1,7 +1,7 @@
 import pygame
 from sys import exit
 from classes import *
-from mechanics import *
+from functions import *
 
 pygame.init() 
 screen = pygame.display.set_mode((800, 400))

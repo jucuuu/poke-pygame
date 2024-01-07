@@ -1,7 +1,7 @@
 import pygame
 import random
 from collections import OrderedDict
-from mechanics import *
+from functions import *
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
