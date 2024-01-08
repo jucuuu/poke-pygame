@@ -216,7 +216,7 @@ class DamageText(pygame.sprite.Sprite):
 
     def update(self):
         """
-        Damage numbers float up and disappear.
+        Creates a damage number that floats up and disappears.
         """
         self.rect.y -= 1
         self.counter += 1

@@ -4,13 +4,13 @@ from classes import *
 
 def sprite_dist(sprite_1, sprite_2):
     """
-    Calculates the distance between two given sprites.
+    Returns the distance between two given sprite rects.
     """
     return math.sqrt((sprite_1.rect.left - sprite_2.rect.left)**2 + (sprite_1.rect.top - sprite_2.rect.top)**2)
 
 def text_wrap(text, font, width): # Line width
     """
-    Breaks text into lines within the provided width.
+    Breaks text into lines within the provided width. Returns an array with lines of wrapped text.
     """
     words = text.split()
     
@@ -29,7 +29,7 @@ def text_wrap(text, font, width): # Line width
 
 def render_wrapped_text(screen, lines, font, x, y, color, line_y = 0, y_offset = 0): # (x,y) - position of text
     """
-    Render lines of text.
+    Render lines of text. Returns the height of next line's position.
     """
     for line in lines:
         fw, fh = font.size(line)
@@ -46,7 +46,7 @@ def render_wrapped_text(screen, lines, font, x, y, color, line_y = 0, y_offset =
 
 def speech(text, sprite, font, screen):
     """
-    Dialogue mechanic.
+    Takes dialogue text and renders it on the screen in a dialogue box with the sprite icon.
     """
     icon = sprite.icon
     icon = pygame.transform.rotozoom(icon, 0, 1.5)
@@ -64,7 +64,7 @@ def speech(text, sprite, font, screen):
         
 def confirmation(option1, option2, font, screen):
     """
-    Render player input options.
+    Render player input options in the dialogue box.
     """
     text_rect = pygame.Surface((700, 120))
     text_rect.set_alpha(240)
@@ -76,14 +76,14 @@ def confirmation(option1, option2, font, screen):
 
 def hint(text, sprite, font, screen):
     """
-    Render informational text on the screen.
+    Takes text, renders it on the screen.
     """
     wrapped_text = text_wrap(text, font, 4*sprite.rect.width)
     render_wrapped_text(screen, wrapped_text, font, sprite.rect.left-30, sprite.rect.top-30, (255,255,255))
 
 def sprite_movement(sprite, target_x, frames_to_complete_movement, dist, speed):
     """
-    Running animation.
+    Displays a running animation.
     """
     if dist < 100:
         movement_distance = (target_x - sprite.rect.x) / frames_to_complete_movement
